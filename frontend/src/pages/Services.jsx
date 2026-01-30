@@ -11,11 +11,12 @@ import {
   CheckCircleIcon,
   CalendarIcon,
   UserGroupIcon,
-  ClockIcon
+  ClockIcon,
+  CpuChipIcon,
 } from '@heroicons/react/24/outline';
 import ConsultationModal from '../components/ConsultationModal';
 import { servicesAPI } from '../services/api';
-import { CodeBracketIcon, DevicePhoneMobileIcon, PaintBrushIcon, CpuChipIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline';
+
 
 const Services = () => {
   const { slug } = useParams();
