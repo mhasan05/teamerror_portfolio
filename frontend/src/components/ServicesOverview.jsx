@@ -37,53 +37,7 @@ const ServicesOverview = () => {
     fetchServices();
   }, []);
 
-  // Default services for when API is not available
-  const defaultServices = [
-    {
-      id: 1,
-      title: 'Web Application Development',
-      short_description: 'Custom web applications built with modern frameworks like React, Next.js, and Django.',
-      icon: 'code',
-      slug: 'web-development'
-    },
-    {
-      id: 2,
-      title: 'Mobile App Development',
-      short_description: 'Native and cross-platform mobile apps for iOS and Android using Flutter and React Native.',
-      icon: 'mobile',
-      slug: 'mobile-development'
-    },
-    {
-      id: 3,
-      title: 'UI/UX Design',
-      short_description: 'Beautiful, user-friendly interfaces designed in Figma with focus on user experience.',
-      icon: 'design',
-      slug: 'ui-ux-design'
-    },
-    {
-      id: 4,
-      title: 'AI Chatbots & Agents',
-      short_description: 'Intelligent chatbots and AI agents to automate customer service and business processes.',
-      icon: 'ai',
-      slug: 'ai-chatbots'
-    },
-    {
-      id: 5,
-      title: 'AI Automation',
-      short_description: 'Streamline your workflows with custom AI automation solutions and integrations.',
-      icon: 'ai',
-      slug: 'ai-automation'
-    },
-    {
-      id: 6,
-      title: 'Maintenance & Support',
-      short_description: '24/7 support and maintenance to keep your applications running smoothly.',
-      icon: 'support',
-      slug: 'maintenance-support'
-    }
-  ];
-
-  const displayServices = services.length > 0 ? services : defaultServices;
+  const displayServices = services;
 
   return (
     <section className="py-20 bg-gray-50">

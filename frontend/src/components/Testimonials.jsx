@@ -23,40 +23,7 @@ const Testimonials = () => {
   }, []);
 
   // Default testimonials
-  const defaultTestimonials = [
-    {
-      id: 1,
-      client_name: 'John Smith',
-      client_position: 'CEO',
-      client_company: 'TechStart Inc',
-      client_country: 'USA',
-      review: 'Outstanding work! They delivered our project on time and exceeded our expectations. The team is highly professional and responsive.',
-      rating: 5,
-      source: 'upwork'
-    },
-    {
-      id: 2,
-      client_name: 'Sarah Johnson',
-      client_position: 'Founder',
-      client_company: 'DigitalFlow',
-      client_country: 'UK',
-      review: 'Best development team I\'ve worked with. They understood our requirements perfectly and delivered a scalable solution.',
-      rating: 5,
-      source: 'fiverr'
-    },
-    {
-      id: 3,
-      client_name: 'Michael Chen',
-      client_position: 'CTO',
-      client_company: 'InnovateLabs',
-      client_country: 'Singapore',
-      review: 'Incredible expertise in AI and automation. They transformed our business processes and saved us countless hours.',
-      rating: 5,
-      source: 'direct'
-    }
-  ];
-
-  const displayTestimonials = testimonials.length > 0 ? testimonials : defaultTestimonials;
+  const displayTestimonials = testimonials;
 
   const renderStars = (rating) => {
     return (

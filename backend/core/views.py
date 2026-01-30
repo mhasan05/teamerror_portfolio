@@ -8,6 +8,8 @@ from .serializers import (
     ServiceSerializer, PortfolioSerializer, PortfolioListSerializer,
     TestimonialSerializer, ContactSerializer, CompanyInfoSerializer, TeamMemberSerializer
 )
+from .models import JobOpening, BlogPost
+from .serializers import JobOpeningSerializer, BlogPostSerializer
 
 
 class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
@@ -124,3 +126,21 @@ class TeamMemberViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TeamMember.objects.filter(is_active=True)
     serializer_class = TeamMemberSerializer
     ordering = ['order', 'name']
+
+
+class JobOpeningViewSet(viewsets.ReadOnlyModelViewSet):
+    """API endpoint for job openings"""
+    queryset = JobOpening.objects.filter(is_active=True)
+    serializer_class = JobOpeningSerializer
+    lookup_field = 'slug'
+    ordering = ['-posted_at']
+
+
+class BlogPostViewSet(viewsets.ReadOnlyModelViewSet):
+    """API endpoint for blog posts"""
+    queryset = BlogPost.objects.filter(is_published=True)
+    serializer_class = BlogPostSerializer
+    lookup_field = 'slug'
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['title', 'excerpt', 'content', 'category']
+    ordering_fields = ['published_at']

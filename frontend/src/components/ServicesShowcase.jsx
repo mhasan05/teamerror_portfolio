@@ -1,53 +1,42 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { 
-  CodeBracketIcon, 
-  DevicePhoneMobileIcon, 
+  CodeBracketIcon,
+  DevicePhoneMobileIcon,
   PaintBrushIcon,
-  SparklesIcon,
-  BoltIcon,
+  CpuChipIcon,
   WrenchScrewdriverIcon,
   ArrowRightIcon
 } from '@heroicons/react/24/outline';
+import { servicesAPI } from '../services/api';
+
+const iconMap = {
+  'code': CodeBracketIcon,
+  'mobile': DevicePhoneMobileIcon,
+  'design': PaintBrushIcon,
+  'ai': CpuChipIcon,
+  'support': WrenchScrewdriverIcon,
+};
 
 const ServicesShowcase = () => {
-  const services = [
-    {
-      icon: CodeBracketIcon,
-      title: 'Web Development',
-      description: 'Custom web applications built with modern technologies for scalability and performance.',
-      link: '/services'
-    },
-    {
-      icon: DevicePhoneMobileIcon,
-      title: 'Mobile Apps',
-      description: 'Native and cross-platform mobile applications for iOS and Android devices.',
-      link: '/services'
-    },
-    {
-      icon: PaintBrushIcon,
-      title: 'UI/UX Design',
-      description: 'Beautiful, intuitive interfaces that users love and convert visitors into customers.',
-      link: '/services'
-    },
-    {
-      icon: SparklesIcon,
-      title: 'AI Solutions',
-      description: 'Intelligent chatbots and AI-powered automation to streamline your business.',
-      link: '/services'
-    },
-    {
-      icon: BoltIcon,
-      title: 'AI Automation',
-      description: 'Automate repetitive tasks and workflows with cutting-edge AI technology.',
-      link: '/services'
-    },
-    {
-      icon: WrenchScrewdriverIcon,
-      title: 'Support & Maintenance',
-      description: '24/7 technical support and ongoing maintenance for your digital products.',
-      link: '/services'
-    }
-  ];
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetch = async () => {
+      try {
+        const res = await servicesAPI.getAll();
+        if (!cancelled) setServices(res.data.slice(0, 6));
+      } catch (err) {
+        console.error('Failed to load services:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    fetch();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <section className="py-20 bg-white">
@@ -68,29 +57,35 @@ const ServicesShowcase = () => {
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => {
-            const Icon = service.icon;
-            return (
-              <div
-                key={index}
-                className="group bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
-              >
-                <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-6 transition-colors" style={{backgroundColor: 'rgba(0, 100, 92, 0.1)'}}>
-                  <Icon className="h-7 w-7" style={{color: 'rgb(0, 100, 92)'}} />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
-                <p className="text-gray-600 mb-6">{service.description}</p>
-                <Link 
-                  to={service.link}
-                  className="inline-flex items-center text-sm font-semibold transition-colors"
-                  style={{color: 'rgb(0, 100, 92)'}}
+          {loading ? (
+            <div className="col-span-3 text-center">Loading services…</div>
+          ) : services.length === 0 ? (
+            <div className="col-span-3 text-center">No services available.</div>
+          ) : (
+            services.map((service) => {
+              const Icon = iconMap[service.icon] || CodeBracketIcon;
+              return (
+                <div
+                  key={service.id}
+                  className="group bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
                 >
-                  Learn More
-                  <ArrowRightIcon className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            );
-          })}
+                  <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-6 transition-colors" style={{backgroundColor: 'rgba(0, 100, 92, 0.1)'}}>
+                    <Icon className="h-7 w-7" style={{color: 'rgb(0, 100, 92)'}} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
+                  <p className="text-gray-600 mb-6">{service.short_description || service.full_description}</p>
+                  <Link 
+                    to={`/services/${service.slug}`}
+                    className="inline-flex items-center text-sm font-semibold transition-colors"
+                    style={{color: 'rgb(0, 100, 92)'}}
+                  >
+                    Learn More
+                    <ArrowRightIcon className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* CTA */}

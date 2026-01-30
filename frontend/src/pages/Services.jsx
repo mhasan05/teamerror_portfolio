@@ -15,126 +15,14 @@ import {
 } from '@heroicons/react/24/outline';
 import ConsultationModal from '../components/ConsultationModal';
 import { servicesAPI } from '../services/api';
+import { CodeBracketIcon, DevicePhoneMobileIcon, PaintBrushIcon, CpuChipIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline';
 
 const Services = () => {
   const { slug } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fallback static services (kept from the original file). Used when the API
-  // is unavailable or during local dev without a backend running.
-  const FALLBACK_SERVICES = [
-    {
-      id: 1,
-      icon: CodeBracketIcon,
-      title: 'Web Application Development',
-      description: 'Build scalable, high-performance web applications with modern technologies',
-      features: [
-        'Responsive & Mobile-First Design',
-        'Progressive Web Apps (PWA)',
-        'RESTful & GraphQL APIs',
-        'Real-time Features',
-        'E-commerce Solutions',
-        'Custom CMS & Admin Dashboards'
-      ],
-      technologies: ['React.js', 'Next.js', 'Django', 'Node.js', 'PostgreSQL'],
-      pricing: 'Starting at $3,000',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
-      slug: 'web-development'
-    },
-    {
-      id: 2,
-      icon: DevicePhoneMobileIcon,
-      title: 'Mobile App Development',
-      description: 'Create powerful mobile applications for iOS and Android platforms',
-      features: [
-        'Cross-platform Development',
-        'Native Performance',
-        'Offline-First Architecture',
-        'Push Notifications',
-        'In-App Purchases',
-        'Social Media Integration'
-      ],
-      technologies: ['Flutter', 'React Native', 'Swift', 'Kotlin', 'Firebase'],
-      pricing: 'Starting at $5,000',
-      image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=600&fit=crop',
-      slug: 'mobile-development'
-    },
-    {
-      id: 3,
-      icon: PaintBrushIcon,
-      title: 'UI/UX Design',
-      description: 'Design beautiful, intuitive interfaces that users love',
-      features: [
-        'User Research & Analysis',
-        'Wireframing & Prototyping',
-        'High-Fidelity Mockups',
-        'Design Systems & Style Guides',
-        'Usability Testing',
-        'Responsive Design'
-      ],
-      technologies: ['Figma', 'Adobe XD', 'Sketch', 'InVision', 'Miro'],
-      pricing: 'Starting at $1,500',
-      image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop',
-      slug: 'ui-ux-design'
-    },
-    {
-      id: 4,
-      icon: SparklesIcon,
-      title: 'AI Chatbots & Agents',
-      description: 'Intelligent chatbots that understand and respond naturally',
-      features: [
-        'Natural Language Processing',
-        'Multi-language Support',
-        '24/7 Customer Support',
-        'CRM Integration',
-        'Custom Training',
-        'Analytics Dashboard'
-      ],
-      technologies: ['OpenAI', 'Python', 'TensorFlow', 'Dialogflow', 'Rasa'],
-      pricing: 'Starting at $2,500',
-      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
-      slug: 'ai-chatbots'
-    },
-    {
-      id: 5,
-      icon: BoltIcon,
-      title: 'AI Automation',
-      description: 'Automate repetitive tasks and streamline your workflows',
-      features: [
-        'Workflow Automation',
-        'Data Processing',
-        'Email Automation',
-        'Report Generation',
-        'API Integrations',
-        'Custom AI Models'
-      ],
-      technologies: ['Python', 'Zapier', 'Make', 'n8n', 'Apache Airflow'],
-      pricing: 'Starting at $2,000',
-      image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop',
-      slug: 'ai-automation'
-    },
-    {
-      id: 6,
-      icon: WrenchScrewdriverIcon,
-      title: 'Maintenance & Support',
-      description: '24/7 technical support and ongoing maintenance services',
-      features: [
-        'Bug Fixes & Updates',
-        'Performance Optimization',
-        'Security Patches',
-        'Backup & Recovery',
-        'Server Monitoring',
-        'Technical Support'
-      ],
-      technologies: ['Docker', 'Kubernetes', 'AWS', 'CI/CD', 'Monitoring Tools'],
-      pricing: 'Starting at $500/month',
-      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=600&fit=crop',
-      slug: 'maintenance-support'
-    },
-  ];
-
   // Component state for dynamic fetches
-  const [servicesList, setServicesList] = useState(FALLBACK_SERVICES);
+  const [servicesList, setServicesList] = useState([]);
   const [serviceDetail, setServiceDetail] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -147,9 +35,8 @@ const Services = () => {
           setServiceDetail(res.data);
         })
         .catch(() => {
-          // Fallback: find simple data from static list
-          const found = FALLBACK_SERVICES.find((s) => s.slug === slug);
-          setServiceDetail(found || FALLBACK_SERVICES[0]);
+          // on error, leave serviceDetail null
+          setServiceDetail(null);
         })
         .finally(() => setLoading(false));
     } else {
@@ -160,7 +47,7 @@ const Services = () => {
           setServicesList(res.data);
         })
         .catch(() => {
-          setServicesList(FALLBACK_SERVICES);
+          setServicesList([]);
         })
         .finally(() => setLoading(false));
     }
@@ -168,8 +55,15 @@ const Services = () => {
 
   // If we're on a specific service page
   if (slug) {
-    const service = serviceDetail || FALLBACK_SERVICES.find((s) => s.slug === slug) || FALLBACK_SERVICES[0];
-    const Icon = service.icon || CodeBracketIcon;
+    if (loading) {
+      return <div className="min-h-screen flex items-center justify-center">Loading service…</div>;
+    }
+    if (!serviceDetail) {
+      return <div className="min-h-screen flex items-center justify-center">Service not found.</div>;
+    }
+
+    const service = serviceDetail;
+    const Icon = service.icon ? CodeBracketIcon : CodeBracketIcon;
 
     return (
       <div className="min-h-screen bg-white">
@@ -467,6 +361,14 @@ const Services = () => {
     },
   ];
 
+  const iconMap = {
+    'code': CodeBracketIcon,
+    'mobile': DevicePhoneMobileIcon,
+    'design': PaintBrushIcon,
+    'ai': CpuChipIcon,
+    'support': WrenchScrewdriverIcon,
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -489,7 +391,9 @@ const Services = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {(servicesList || []).map((service) => {
-            const Icon = service.icon;
+            const Icon = iconMap[service.icon] || CodeBracketIcon;
+            const features = service.features || service.process_steps_list || [];
+            const technologies = service.technologies_list || (service.technologies ? service.technologies.split(',') : []);
             return (
               <div
                 key={service.id}
@@ -517,7 +421,7 @@ const Services = () => {
 
                   {/* Features */}
                   <ul className="space-y-2 mb-6">
-                    {service.features.slice(0, 4).map((feature, idx) => (
+                    {features.slice(0, 4).map((feature, idx) => (
                       <li key={idx} className="flex items-start text-sm">
                         <CheckCircleIcon className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" style={{color: 'rgb(0, 100, 92)'}} />
                         <span className="text-gray-600">{feature}</span>
@@ -527,7 +431,7 @@ const Services = () => {
 
                   {/* Technologies */}
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {service.technologies.slice(0, 3).map((tech, idx) => (
+                    {technologies.slice(0, 3).map((tech, idx) => (
                       <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
                         {tech}
                       </span>

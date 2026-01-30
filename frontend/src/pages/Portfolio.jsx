@@ -1,75 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowRightIcon, GlobeAltIcon, CodeBracketIcon, CalendarIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import ConsultationModal from '../components/ConsultationModal';
+import { portfolioAPI } from '../services/api';
 
 const Portfolio = () => {
   const { slug } = useParams();
   const [filter, setFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [projects, setProjects] = useState([]);
+  const [projectDetail, setProjectDetail] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    if (slug) {
+      portfolioAPI.getBySlug(slug)
+        .then((res) => setProjectDetail(res.data))
+        .catch((err) => {
+          console.error('Error fetching project detail:', err);
+          setProjectDetail(null);
+        })
+        .finally(() => setLoading(false));
+    } else {
+      portfolioAPI.getAll()
+        .then((res) => setProjects(res.data))
+        .catch((err) => {
+          console.error('Error fetching projects:', err);
+          setProjects([]);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [slug]);
 
   // If we're on a specific portfolio item page
   if (slug) {
-    const projects = {
-      'ecommerce-platform-techmart': {
-        id: 1,
-        title: 'E-Commerce Platform - TechMart',
-        category: 'ecommerce',
-        client: 'TechMart Inc.',
-        image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=600&fit=crop',
-        challenge: 'Client needed a scalable e-commerce platform to handle 10,000+ daily users with real-time inventory management.',
-        solution: 'Built a modern e-commerce platform using React, Django, and PostgreSQL with Redis caching and Stripe payment integration.',
-        result: '300% increase in sales, 99.9% uptime, and reduced page load time by 60%.',
-        technologies: ['React.js', 'Django', 'PostgreSQL', 'Redis', 'Stripe', 'AWS'],
-        duration: '4 months',
-        testimonial: 'Working with TeamError was a game-changer for our business. Their expertise and dedication delivered results beyond our expectations.',
-        liveUrl: '#',
-        features: [
-          'Real-time inventory management',
-          'Secure payment processing',
-          'Advanced search and filtering',
-          'User reviews and ratings',
-          'Order tracking system',
-          'Admin dashboard'
-        ],
-        metrics: [
-          { label: 'Sales Increase', value: '300%' },
-          { label: 'Load Time', value: '-60%' },
-          { label: 'Uptime', value: '99.9%' },
-          { label: 'Users', value: '10K+/day' }
-        ]
-      },
-      'ai-customer-service-chatbot': {
-        id: 2,
-        title: 'AI Customer Service Chatbot',
-        category: 'ai',
-        client: 'StartupXYZ',
-        image: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=1200&h=600&fit=crop',
-        challenge: 'Customer service team overwhelmed with 500+ daily inquiries, leading to slow response times.',
-        solution: 'Developed an intelligent chatbot using GPT-4 with custom training on company data, integrated with existing CRM.',
-        result: 'Handled 80% of inquiries automatically, reduced response time from 2 hours to 30 seconds.',
-        technologies: ['GPT-4', 'Python', 'TensorFlow', 'Node.js', 'MongoDB'],
-        duration: '3 months',
-        testimonial: 'The AI chatbot has transformed our customer service operations. Response times are lightning-fast and customer satisfaction has never been higher.',
-        liveUrl: '#',
-        features: [
-          'Natural language processing',
-          'Multi-language support',
-          'CRM integration',
-          'Analytics dashboard',
-          'Custom training',
-          '24/7 availability'
-        ],
-        metrics: [
-          { label: 'Automation Rate', value: '80%' },
-          { label: 'Response Time', value: '30 sec' },
-          { label: 'Satisfaction', value: '95%' },
-          { label: 'Cost Savings', value: '$50K/year' }
-        ]
-      }
-    };
+    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading project…</div>;
+    if (!projectDetail) return <div className="min-h-screen flex items-center justify-center">Project not found.</div>;
 
-    const project = projects[slug] || projects['ecommerce-platform-techmart'];
+    const project = projectDetail;
 
     return (
       <div className="min-h-screen bg-white">
@@ -257,117 +226,18 @@ const Portfolio = () => {
     );
   }
 
-  // Portfolio overview page
-  const categories = ['all', 'web', 'mobile', 'ai', 'ecommerce'];
+  // Derive categories from loaded projects (first technology or category-like field)
+  const categories = ['all', ...Array.from(new Set(projects.flatMap(p => {
+    const techs = p.technologies_list || (p.technologies ? p.technologies.split(',') : []);
+    return techs.slice(0, 1).map(t => t.trim().toLowerCase());
+  }).filter(Boolean)))];
 
-  const projects = [
-    {
-      id: 1,
-      title: 'E-Commerce Platform - TechMart',
-      category: 'ecommerce',
-      client: 'TechMart Inc.',
-      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=600&fit=crop',
-      challenge: 'Client needed a scalable e-commerce platform to handle 10,000+ daily users with real-time inventory management.',
-      solution: 'Built a modern e-commerce platform using React, Django, and PostgreSQL with Redis caching and Stripe payment integration.',
-      result: '300% increase in sales, 99.9% uptime, and reduced page load time by 60%.',
-      technologies: ['React.js', 'Django', 'PostgreSQL', 'Redis', 'Stripe', 'AWS'],
-      metrics: [
-        { label: 'Revenue Increase', value: '300%' },
-        { label: 'Load Time', value: '-60%' },
-        { label: 'Uptime', value: '99.9%' }
-      ],
-      slug: 'ecommerce-platform-techmart'
-    },
-    {
-      id: 2,
-      title: 'AI Customer Service Chatbot',
-      category: 'ai',
-      client: 'StartupXYZ',
-      image: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=1200&h=600&fit=crop',
-      challenge: 'Customer service team overwhelmed with 500+ daily inquiries, leading to slow response times.',
-      solution: 'Developed an intelligent chatbot using GPT-4 with custom training on company data, integrated with existing CRM.',
-      result: 'Handled 80% of inquiries automatically, reduced response time from 2 hours to 30 seconds.',
-      technologies: ['GPT-4', 'Python', 'TensorFlow', 'Node.js', 'MongoDB'],
-      metrics: [
-        { label: 'Automation Rate', value: '80%' },
-        { label: 'Response Time', value: '30sec' },
-        { label: 'Satisfaction', value: '95%' }
-      ],
-      slug: 'ai-customer-service-chatbot'
-    },
-    {
-      id: 3,
-      title: 'Fitness Tracking Mobile App',
-      category: 'mobile',
-      client: 'FitLife Pro',
-      image: 'https://images.unsplash.com/photo-1540553016722-983e48a2cd10?w=1200&h=600&fit=crop',
-      challenge: 'Need cross-platform app for iOS and Android with offline functionality and real-time syncing.',
-      solution: 'Built with Flutter for cross-platform development, Firebase for backend, and implemented offline-first architecture.',
-      result: '50K+ downloads in first month, 4.8-star rating, featured by App Store.',
-      technologies: ['Flutter', 'Firebase', 'Node.js', 'PostgreSQL'],
-      metrics: [
-        { label: 'Downloads', value: '50K+' },
-        { label: 'Rating', value: '4.8★' },
-        { label: 'Active Users', value: '25K' }
-      ],
-      slug: 'fitness-tracking-mobile-app'
-    },
-    {
-      id: 4,
-      title: 'SaaS Project Management Tool',
-      category: 'web',
-      client: 'TaskFlow Solutions',
-      image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=600&fit=crop',
-      challenge: 'Teams needed collaborative project management tool with real-time updates and integrations.',
-      solution: 'Created a full-featured SaaS platform with Next.js, real-time collaboration, and third-party integrations.',
-      result: '1,000+ paying customers, $50K MRR in 6 months, 95% customer retention.',
-      technologies: ['Next.js', 'Node.js', 'MongoDB', 'Redis', 'AWS'],
-      metrics: [
-        { label: 'Paying Customers', value: '1,000+' },
-        { label: 'MRR', value: '$50K' },
-        { label: 'Retention', value: '95%' }
-      ],
-      slug: 'saas-project-management-tool'
-    },
-    {
-      id: 5,
-      title: 'Real Estate Listing Platform',
-      category: 'web',
-      client: 'PropertyHub',
-      image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=600&fit=crop',
-      challenge: 'Real estate agency needed modern platform with advanced search, virtual tours, and lead management.',
-      solution: 'Developed comprehensive platform with map integration, virtual tour support, and CRM for lead tracking.',
-      result: '200% increase in qualified leads, 40% reduction in time-to-sale.',
-      technologies: ['React.js', 'Django', 'PostgreSQL', 'AWS S3'],
-      metrics: [
-        { label: 'Lead Increase', value: '200%' },
-        { label: 'Time to Sale', value: '-40%' },
-        { label: 'Listings', value: '5,000+' }
-      ],
-      slug: 'real-estate-listing-platform'
-    },
-    {
-      id: 6,
-      title: 'AI Document Processing System',
-      category: 'ai',
-      client: 'LegalTech Corp',
-      image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&h=600&fit=crop',
-      challenge: 'Law firm processing 1000+ documents daily manually, leading to errors and delays.',
-      solution: 'Built AI-powered system using OCR, NLP, and custom ML models to extract and categorize information.',
-      result: '90% reduction in processing time, 99% accuracy, saved 20 hours/week.',
-      technologies: ['Python', 'TensorFlow', 'OCR', 'NLP', 'PostgreSQL'],
-      metrics: [
-        { label: 'Processing Time', value: '-90%' },
-        { label: 'Accuracy', value: '99%' },
-        { label: 'Time Saved', value: '20hr/week' }
-      ],
-      slug: 'ai-document-processing-system'
-    },
-  ];
-
-  const filteredProjects = filter === 'all' 
-    ? projects 
-    : projects.filter(project => project.category === filter);
+  const filteredProjects = filter === 'all'
+    ? projects
+    : projects.filter(project => {
+        const techs = project.technologies_list || (project.technologies ? project.technologies.split(',') : []);
+        return techs.map(t => t.trim().toLowerCase()).includes(filter);
+      });
 
   return (
     <div className="min-h-screen bg-white">

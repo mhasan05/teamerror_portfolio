@@ -23,34 +23,7 @@ const PortfolioPreview = () => {
   }, []);
 
   // Default portfolio items
-  const defaultPortfolio = [
-    {
-      id: 1,
-      title: 'E-Commerce Platform',
-      client_company: 'TechCorp',
-      short_description: 'Full-stack e-commerce solution with payment integration',
-      technologies: 'React, Django, Stripe, AWS',
-      slug: 'ecommerce-platform'
-    },
-    {
-      id: 2,
-      title: 'AI Chatbot Platform',
-      client_company: 'StartupXYZ',
-      short_description: 'Intelligent customer service chatbot using GPT-4',
-      technologies: 'Next.js, Python, OpenAI, PostgreSQL',
-      slug: 'ai-chatbot'
-    },
-    {
-      id: 3,
-      title: 'Mobile Fitness App',
-      client_company: 'FitLife',
-      short_description: 'Cross-platform fitness tracking application',
-      technologies: 'Flutter, Firebase, REST API',
-      slug: 'fitness-app'
-    }
-  ];
-
-  const displayPortfolio = portfolio.length > 0 ? portfolio : defaultPortfolio;
+  const displayPortfolio = portfolio;
 
   return (
     <section className="py-20 bg-white">

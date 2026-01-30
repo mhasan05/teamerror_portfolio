@@ -299,3 +299,65 @@ class TeamMember(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.position}"
+
+
+class JobOpening(models.Model):
+    """Job openings for Careers page"""
+    title = models.CharField(max_length=200)
+    department = models.CharField(max_length=200, blank=True)
+    location = models.CharField(max_length=200, blank=True)
+    employment_type = models.CharField(max_length=100, blank=True)
+    salary = models.CharField(max_length=100, blank=True)
+    experience = models.CharField(max_length=100, blank=True)
+    posted_at = models.DateTimeField(auto_now_add=True)
+    description = models.TextField()
+    requirements = models.TextField(blank=True, help_text="One requirement per line")
+    benefits = models.TextField(blank=True, help_text="One benefit per line")
+    is_active = models.BooleanField(default=True)
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
+
+    class Meta:
+        ordering = ['-posted_at']
+        verbose_name = 'Job Opening'
+        verbose_name_plural = 'Job Openings'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def requirements_list(self):
+        return [r.strip() for r in self.requirements.split('\n') if r.strip()]
+
+    def benefits_list(self):
+        return [b.strip() for b in self.benefits.split('\n') if b.strip()]
+
+    def __str__(self):
+        return self.title
+
+
+class BlogPost(models.Model):
+    """Simple blog post model"""
+    title = models.CharField(max_length=250)
+    slug = models.SlugField(max_length=250, unique=True, blank=True)
+    excerpt = models.TextField(blank=True)
+    content = models.TextField()
+    author = models.CharField(max_length=200, blank=True)
+    featured_image = models.ImageField(upload_to='blog/', blank=True, null=True)
+    category = models.CharField(max_length=100, blank=True)
+    published_at = models.DateTimeField(null=True, blank=True)
+    is_published = models.BooleanField(default=False)
+    read_time = models.CharField(max_length=50, blank=True)
+
+    class Meta:
+        ordering = ['-published_at']
+        verbose_name = 'Blog Post'
+        verbose_name_plural = 'Blog Posts'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title

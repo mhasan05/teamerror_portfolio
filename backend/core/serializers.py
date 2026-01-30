@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Service, Portfolio, Testimonial, Contact, CompanyInfo, TeamMember
+from .models import JobOpening, BlogPost
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -137,3 +138,31 @@ class TeamMemberSerializer(serializers.ModelSerializer):
         if obj.skills:
             return [skill.strip() for skill in obj.skills.split(',')]
         return []
+
+
+class JobOpeningSerializer(serializers.ModelSerializer):
+    requirements_list = serializers.SerializerMethodField()
+    benefits_list = serializers.SerializerMethodField()
+
+    class Meta:
+        model = JobOpening
+        fields = [
+            'id', 'title', 'slug', 'department', 'location', 'employment_type',
+            'salary', 'experience', 'posted_at', 'description', 'requirements',
+            'requirements_list', 'benefits', 'benefits_list', 'is_active'
+        ]
+
+    def get_requirements_list(self, obj):
+        return obj.requirements_list()
+
+    def get_benefits_list(self, obj):
+        return obj.benefits_list()
+
+
+class BlogPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BlogPost
+        fields = [
+            'id', 'title', 'slug', 'excerpt', 'content', 'author', 'featured_image',
+            'category', 'published_at', 'is_published', 'read_time'
+        ]
