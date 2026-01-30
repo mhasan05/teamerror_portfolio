@@ -1,6 +1,29 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// Use Vite env var when provided. For production builds hosted at `teamerror.net`
+// we prefer the API at `https://api.teamerror.net/api`. During local dev fall
+// back to the local Django backend.
+const DEFAULT_LOCAL_API = 'http://localhost:8000/api';
+const PRODUCTION_API = 'https://api.teamerror.net/api';
+
+function resolveApiUrl() {
+  // Vite-provided env at build time (e.g. VITE_API_URL="https://...")
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+
+  // If running in a browser, map the frontend host to the production API.
+  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+    const host = window.location.hostname;
+    // When frontend is served from teamerror.net (or subdomains) use the API subdomain.
+    if (host === 'teamerror.net' || host.endsWith('.teamerror.net')) {
+      return PRODUCTION_API;
+    }
+  }
+
+  // Default (local development)
+  return DEFAULT_LOCAL_API;
+}
+
+const API_URL = resolveApiUrl();
 
 const api = axios.create({
   baseURL: API_URL,

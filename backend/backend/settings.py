@@ -21,12 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "LSKHDFUEOIGSDYTR%^*&E*USGDFHS^&RE&SUFJSHGDJFGSUYSHF"
+SECRET_KEY = config('SECRET_KEY', default="LSKHDFUEOIGSDYTR%^*&E*USGDFHS^&RE&SUFJSHGDJFGSUYSHF")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ["api.teamerror.net", "localhost", "127.0.0.1"]
+# Hosts allowed to serve the Django app. Provide a comma-separated list in PROD.
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='api.teamerror.net,localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -92,7 +93,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 import dj_database_url
 DATABASES = {
     'default': dj_database_url.parse(
-        'postgresql://neondb_owner:npg_Kh1enSimvQk9@ep-tiny-band-a1eftp4d-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+        'postgresql://neondb_owner:npg_kDKXVQ2CO9Ad@ep-mute-grass-a1vw3rq7-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
         conn_max_age=600,
         ssl_require=True
     )
@@ -145,12 +146,14 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:5173,http://localhost:3000').split(',')
-CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = [
-  "https://teamerror.net",
-  "https://www.teamerror.net"
-]
+CORS_ALLOWED_ORIGINS = config(
+        'CORS_ALLOWED_ORIGINS',
+        default='http://localhost:5173,http://localhost:3000,https://teamerror.net,https://www.teamerror.net'
+).split(',')
+CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', default=True, cast=bool)
+
+# CSRF trusted origins (comma-separated) - include your frontend domain(s)
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='https://teamerror.net,https://www.teamerror.net').split(',')
 
 # REST Framework Settings
 REST_FRAMEWORK = {
